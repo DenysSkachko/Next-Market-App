@@ -3,14 +3,10 @@ import { CRYPTOCURRENCY_LIST } from '../constants'
 
 export const cryptoApi = createApi({
   reducerPath: 'cryptoApi',
-  baseQuery: fetchBaseQuery({
-    baseUrl: 'https://api.coingecko.com/api/v3',
-  }),
-  endpoints: (build) => ({
+  baseQuery: fetchBaseQuery({ baseUrl: '/api' }),
+  endpoints: build => ({
     getPrices: build.query<Record<string, { usd: number }>, void>({
-      query: () =>
-        `/simple/price?ids=${CRYPTOCURRENCY_LIST.join(',')}&vs_currencies=usd`,
-      keepUnusedDataFor: 30,
+      query: () => `/prices?ids=${CRYPTOCURRENCY_LIST.join(',')}`,
     }),
   }),
 })

@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useGetPricesQuery } from '@/lib/store/service'
 
 interface RowCardProps {
@@ -14,8 +14,15 @@ const RowCard = ({ id, name, image, symbol }: RowCardProps) => {
   const { data, isLoading, isError } = useGetPricesQuery(undefined, {
     pollingInterval: 30_000,
   })
+  console.log('Render RawCard')
 
   const price = data?.[id]?.usd
+
+  useEffect(() => {
+    if (price !== undefined) {
+      console.log(`Price updated for ${name}: $${price}`)
+    }
+  }, [price, name])
 
   return (
     <li className="flex items-center justify-between p-2 cursor-pointer transition-all duration-500">
@@ -25,16 +32,7 @@ const RowCard = ({ id, name, image, symbol }: RowCardProps) => {
           {name} ({symbol.toUpperCase()})
         </span>
       </div>
-      <span>
-        {isLoading
-          ? 'Loading...'
-          : isError
-          ? 'Error'
-          : price?.toLocaleString('en-US', {
-              style: 'currency',
-              currency: 'USD',
-            })}
-      </span>
+      <span>{isLoading ? 'Loading...' : isError ? 'Error' : price?.toLocaleString()}$</span>
     </li>
   )
 }
