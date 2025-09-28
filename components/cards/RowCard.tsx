@@ -1,29 +1,42 @@
-import { Cryptocurrency } from '@/lib/types/crypto.types'
+'use client'
+
 import React from 'react'
+import { useGetPricesQuery } from '@/lib/store/service'
 
 interface RowCardProps {
-  coin: Cryptocurrency
-  selectedCoinId: string | null
-  select: () => void
+  id: string
+  name: string
+  image: string
+  symbol: string
 }
 
-const RowCard = ({ coin, select, selectedCoinId }: RowCardProps) => {
+const RowCard = ({ id, name, image, symbol }: RowCardProps) => {
+  const { data, isLoading, isError } = useGetPricesQuery(undefined, {
+    pollingInterval: 30_000,
+  })
+
+  const price = data?.[id]?.usd
+
   return (
-    <li
-      onClick={select}
-      className={`flex items-center justify-between p-2 rounded cursor-pointer ${
-        selectedCoinId === coin.id ? 'bg-yellow-400 text-black font-bold'  : 'bg-gray-800'
-      }`}
-    >
+    <li className="flex items-center justify-between p-2 cursor-pointer transition-all duration-500">
       <div className="flex items-center space-x-2">
-        <img src={coin.image} alt={coin.name} className="w-6 h-6" />
+        <img src={image} alt={name} className="w-6 h-6" />
         <span>
-          {coin.name} ({coin.symbol.toUpperCase()})
+          {name} ({symbol.toUpperCase()})
         </span>
       </div>
-      <span className="text-green-400">{coin.current_price}</span>
+      <span>
+        {isLoading
+          ? 'Loading...'
+          : isError
+          ? 'Error'
+          : price?.toLocaleString('en-US', {
+              style: 'currency',
+              currency: 'USD',
+            })}
+      </span>
     </li>
   )
 }
 
-export default RowCard
+export default React.memo(RowCard)
