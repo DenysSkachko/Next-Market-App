@@ -1,41 +1,52 @@
 'use client'
 
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
 import { fetchCoins } from '@/lib/store/slice'
 import { Cryptocurrency } from '@/lib/types/crypto.types'
-import { CRYPTOCURRENCY_LIST, CRYPTOCURRENCY_LIST2 } from '@/lib/constants'
 import RowCard from '../cards/RowCard'
+import { Pagination } from './Pagination'
 
-const TopCryptocurrencyList = () => {
+const ITEMS_PER_PAGE = 10
+
+const AllCryptocurrencyList = () => {
   const dispatch = useAppDispatch()
-  const { coins, status } = useAppSelector(state => state.crypto)
-
-  console.log('Render TopCryptocurrencyList')
+  const { lists, status } = useAppSelector(state => state.crypto)
+  const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
-    dispatch(fetchCoins({ ids: CRYPTOCURRENCY_LIST }))
-  }, [dispatch])
+    if (!lists.all || lists.all.length === 0) {
+      dispatch(fetchCoins({ ids: [], listKey: 'all' }))
+    }
+  }, [dispatch, lists.all])
 
   if (status === 'loading') return <p>Loading...</p>
   if (status === 'failed') return <p>Error...</p>
 
+  const totalPages = Math.ceil(lists.all.length / ITEMS_PER_PAGE)
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
+  const currentCoins = lists.all.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+
+  const handlePageChange = (page: number) => {
+    if (page < 1 || page > totalPages) return
+    setCurrentPage(page)
+  }
+
   return (
     <div>
-      <ul className="bg-gray-800 rounded-xl overflow-hidden">
-        <h2 className="text-center bg-yellow-400 text-xl text-black py-2"> Top 10 Cryptocurrencies</h2>
-        {coins.map((coin: Cryptocurrency) => (
-          <RowCard
-            key={coin.id}
-            name={coin.name}
-            image={coin.image}
-            id={coin.id}
-            symbol={coin.symbol}
-          />
+      <ul className="border border-[#303241] rounded-xl overflow-hidden">
+        {currentCoins.map((coin: Cryptocurrency) => (
+          <RowCard key={coin.id} coin={coin} />
         ))}
       </ul>
+
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   )
 }
 
-export default TopCryptocurrencyList
+export default AllCryptocurrencyList

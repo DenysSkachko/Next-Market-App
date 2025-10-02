@@ -1,40 +1,40 @@
 'use client'
 
-import React, { useEffect } from 'react'
-import { useGetPricesQuery } from '@/lib/store/service'
+import { useAppDispatch, useAppSelector } from '@/hooks/useStore'
+import { selectCoin } from '@/lib/store/slice'
+import { Cryptocurrency } from '@/lib/types/crypto.types'
+import { FC } from 'react'
 
 interface RowCardProps {
-  id: string
-  name: string
-  image: string
-  symbol: string
+  coin: Cryptocurrency
 }
 
-const RowCard = ({ id, name, image, symbol }: RowCardProps) => {
-  const { data, isLoading, isError } = useGetPricesQuery(undefined, {
-    pollingInterval: 30_000,
-  })
-  console.log('Render RawCard')
+const RowCard: FC<RowCardProps> = ({ coin }) => {
+  const dispatch = useAppDispatch()
+  const selectedCoinId = useAppSelector(state => state.crypto.selectedCoinId)
 
-  const price = data?.[id]?.usd
+  const handleClick = () => {
+    dispatch(selectCoin(coin.id))
+  }
 
-  useEffect(() => {
-    if (price !== undefined) {
-      console.log(`Price updated for ${name}: $${price}`)
-    }
-  }, [price, name])
+  const priceFix = (coin.current_price ?? 0) < 1 ? 4 : 2
 
   return (
-    <li className="flex items-center justify-between p-2 cursor-pointer transition-all duration-500">
+    <li
+      onClick={handleClick}
+      className={`flex items-center justify-between p-2 cursor-pointer transition-all duration-500 ${
+        selectedCoinId === coin.id ? 'bg-yellow-400 text-black' : ' text-white'
+      }`}
+    >
       <div className="flex items-center space-x-2">
-        <img src={image} alt={name} className="w-6 h-6" />
+        <img src={coin.image} alt={coin.name} className="w-6 h-6" />
         <span>
-          {name} ({symbol.toUpperCase()})
+          {coin.name} ({coin.symbol.toUpperCase()})
         </span>
       </div>
-      <span>{isLoading ? 'Loading...' : isError ? 'Error' : price?.toLocaleString()}$</span>
+      <span>{coin.current_price?.toFixed(priceFix)}</span>
     </li>
   )
 }
 
-export default React.memo(RowCard)
+export default RowCard

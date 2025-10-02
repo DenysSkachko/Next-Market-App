@@ -11,5 +11,4 @@ export const CRYPTOCURRENCY_LIST = [
   'chainlink',
 ]
 
-
-export const CRYPTOCURRENCY_LIST2 = ['bitcoin', 'ethereum']
+export const CRYPTOCURRENCY_LIST2 = ['bitcoin', 'ethereum', 'binancecoin', 'the-open-network']
