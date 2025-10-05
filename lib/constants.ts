@@ -11,4 +11,12 @@ export const CRYPTOCURRENCY_LIST = [
   'chainlink',
 ]
 
-export const CRYPTOCURRENCY_LIST2 = ['bitcoin', 'ethereum', 'binancecoin', 'the-open-network']
+export const CRYPTOCURRENCY_LIST2 = ['bitcoin', 'ethereum', 'binancecoin', 'solana', 'ripple']
+
+export const FIXED_COINS = [
+  { name: 'bitcoin', symbol: 'BTC' },
+  { name: 'ethereum', symbol: 'ETH' },
+  { name: 'binancecoin', symbol: 'BNB' },
+  { name: 'ripple', symbol: 'XRP' },
+  { name: 'solana', symbol: 'SOL' },
+]

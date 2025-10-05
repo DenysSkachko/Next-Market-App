@@ -7,8 +7,10 @@ const initialState: CryptoState = {
     marked: [],
     all: [],
   },
+  globals: null,
   selectedCoinId: 'bitcoin',
   status: 'idle',
+  searchTerm: '',
 }
 
 export const fetchCoins = createAsyncThunk(
@@ -30,12 +32,21 @@ export const fetchCoins = createAsyncThunk(
   }
 )
 
+export const fetchGlobals = createAsyncThunk('crypto/fetchGlobals', async () => {
+  const res = await fetch('https://api.coingecko.com/api/v3/global')
+  const json = await res.json()
+  return json.data
+})
+
 export const cryptoSlice = createSlice({
   name: 'crypto',
   initialState,
   reducers: {
     selectCoin: (state, action: PayloadAction<string>) => {
       state.selectedCoinId = action.payload
+    },
+    setSearchTerm(state, action: PayloadAction<string>) {
+      state.searchTerm = action.payload
     },
   },
   extraReducers: builder => {
@@ -51,9 +62,20 @@ export const cryptoSlice = createSlice({
       .addCase(fetchCoins.rejected, state => {
         state.status = 'failed'
       })
+      .addCase(fetchGlobals.pending, state => {
+        state.status = 'loading'
+      })
+      .addCase(fetchGlobals.fulfilled, (state, action) => {
+        state.status = 'idle'
+        state.globals = action.payload
+      })
+      .addCase(fetchGlobals.rejected, state => {
+        state.status = 'failed'
+      })
   },
 })
 
 export const { selectCoin } = cryptoSlice.actions
+export const { setSearchTerm } = cryptoSlice.actions
 
 export default cryptoSlice.reducer

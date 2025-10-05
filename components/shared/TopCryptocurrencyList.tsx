@@ -11,7 +11,7 @@ const ITEMS_PER_PAGE = 10
 
 const AllCryptocurrencyList = () => {
   const dispatch = useAppDispatch()
-  const { lists, status } = useAppSelector(state => state.crypto)
+  const { lists, status, searchTerm } = useAppSelector(state => state.crypto)
   const [currentPage, setCurrentPage] = useState(1)
 
   useEffect(() => {
@@ -23,9 +23,14 @@ const AllCryptocurrencyList = () => {
   if (status === 'loading') return <p>Loading...</p>
   if (status === 'failed') return <p>Error...</p>
 
-  const totalPages = Math.ceil(lists.all.length / ITEMS_PER_PAGE)
+  const filteredCoins = lists.all.filter((coin: Cryptocurrency) =>
+    coin.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    coin.symbol.toLowerCase().includes(searchTerm.toLowerCase())
+  )
+
+  const totalPages = Math.ceil(filteredCoins.length / ITEMS_PER_PAGE)
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE
-  const currentCoins = lists.all.slice(startIndex, startIndex + ITEMS_PER_PAGE)
+  const currentCoins = filteredCoins.slice(startIndex, startIndex + ITEMS_PER_PAGE)
 
   const handlePageChange = (page: number) => {
     if (page < 1 || page > totalPages) return
@@ -38,13 +43,18 @@ const AllCryptocurrencyList = () => {
         {currentCoins.map((coin: Cryptocurrency) => (
           <RowCard key={coin.id} coin={coin} />
         ))}
+        {currentCoins.length === 0 && (
+          <li className="p-6 text-center text-gray-400">No results found</li>
+        )}
       </ul>
 
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      )}
     </div>
   )
 }

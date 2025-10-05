@@ -22,8 +22,10 @@ export interface CryptoState {
     marked: Cryptocurrency[]
     all: Cryptocurrency[]
   }
+  globals: any
   selectedCoinId: string | null
   status: 'idle' | 'loading' | 'failed'
+  searchTerm: string
 }
 
 export interface CoinsList {
